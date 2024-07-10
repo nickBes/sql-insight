@@ -1,5 +1,5 @@
 from sqlglot import Expression
-from typing import TypeVar, TypeAlias
+from typing import TypeVar, TypeAlias, Iterator
 from collections import deque
 
 E = TypeVar("E", bound=Expression)
@@ -37,3 +37,20 @@ def get_first_expression_by_path(
         return expressions[0]
     else:
         return None
+
+
+def get_expressions_by_recursive_path(
+    start: Expression, path: ExpressionPath[E]
+) -> list[E]:
+    queue: deque[Expression] = deque([start])
+    expressions: list[E] = []
+
+    while queue:
+        current_expression = queue.popleft()
+        expressions += get_expressions_by_path(current_expression, path)
+
+        for child_expression in current_expression.iter_expressions():
+            if isinstance(child_expression, path[0]):
+                queue.append(child_expression)
+
+    return expressions

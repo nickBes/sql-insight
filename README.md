@@ -6,8 +6,8 @@
 
 ### Core Functionality
 
-- **Observer Strategy**: Implement a strategy for effectively traversing specific expressions within SQL queries.
-- **Path Search**: Develop a method to locate patterns within SQL expressions using a path-based approach.
+- **Observer Strategy**: Implement a strategy for effectively traversing specific expressions within SQL queries. ✅
+- **Path Search**: Develop a method to locate patterns within SQL expressions using a path-based approach. ✅
 - **Recursive Expression Extraction**: Implement functionality to recursively extract expressions within SQL queries.
 
 ### Listeners

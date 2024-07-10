@@ -1,19 +1,9 @@
-from core.observer import ExpressionObserver, ExpressionWalker
-from sqlglot.expressions import Column, Table
+from sql_insight.core.observer import ExpressionWalker
+from sql_insight.observers.PartitionObserver import PartitionObserver
 from sqlglot import parse_one
 
 
-class LineageObserver(ExpressionObserver):
-    @ExpressionObserver.register(Column)
-    def observe_column_exp(self, column_exp: Column):
-        print(column_exp)
-
-    @ExpressionObserver.register(Table)
-    def observe_table_exp(self, table_exp: Table):
-        print(table_exp)
-
-
-lineage = LineageObserver()
+partition = PartitionObserver()
 expression = parse_one(
     """
             with abc as (
@@ -22,14 +12,18 @@ expression = parse_one(
                 ) d
                 inner join beta b
                 on a.id = b.id
+                where a.id between 10 and 20
             ),
             efg as (
                 select * from beta
             )
-            select * from abc, efg
+            select a, b from abc, efg
+            where a = 5 and (b > 5 or c in (1, 2, 3)) 
         """,
     dialect="trino",
 )
-print(repr(expression))
-walker = ExpressionWalker(expression, lineage)
+
+walker = ExpressionWalker(expression, partition)
 walker.walk()
+
+print(partition.where_columns, partition.join_columns, sep="\n")
