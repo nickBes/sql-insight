@@ -10,7 +10,7 @@ class ExpressionObserver:
     observer_method_names: dict[str, str] = dict()
 
     @classmethod
-    def observe(cls, expression_kind: type[Expression]):
+    def register(cls, expression_kind: type[Expression]):
         def register_observer_method(
             observer_method: ObserverMethod[SelfExpressionObserver, E],
         ) -> ObserverMethod[SelfExpressionObserver, E]:
