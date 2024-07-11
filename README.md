@@ -8,12 +8,12 @@
 
 - **Observer Strategy**: Implement a strategy for effectively traversing specific expressions within SQL queries. ✅
 - **Path Search**: Develop a method to locate patterns within SQL expressions using a path-based approach. ✅
-- **Recursive Expression Extraction**: Implement functionality to recursively extract expressions within SQL queries.
+- **Recursive Expression Extraction**: Implement functionality to recursively extract expressions within SQL queries. ✅
 
 ### Listeners
 
 - **Partitioning Candidates**: Implement listeners to identify potential partitioning strategies within SQL queries.
-- **Lineage Candidates**: Develop listeners to track data lineage within SQL queries.
+- **Lineage Candidates?**: Develop listeners to track data lineage within SQL queries.
 
 ### Autocomplete Utilities
 

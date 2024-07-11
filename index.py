@@ -16,6 +16,7 @@ expression = parse_one(
             ),
             efg as (
                 select * from beta
+                where id = 2
             )
             select a, b from abc, efg
             where a = 5 and (b > 5 or c in (1, 2, 3)) 
@@ -26,4 +27,7 @@ expression = parse_one(
 walker = ExpressionWalker(expression, partition)
 walker.walk()
 
-print(partition.where_columns, partition.join_columns, sep="\n")
+[
+    print([y.name for y in partition.get_column_expression_tables(x)], x)
+    for x in partition.where_columns
+]

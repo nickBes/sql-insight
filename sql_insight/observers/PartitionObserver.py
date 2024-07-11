@@ -1,6 +1,19 @@
 from sql_insight.core.observer import ExpressionObserver
-from sql_insight.core.utils import get_expressions_by_recursive_path
-from sqlglot.expressions import Where, Column, Condition, Join
+from sql_insight.core.utils import (
+    get_expressions_by_recursive_path,
+    get_parent,
+    get_expressions_by_path,
+)
+from sqlglot.expressions import (
+    Where,
+    Column,
+    Condition,
+    Join,
+    Table,
+    Select,
+    From,
+    With,
+)
 
 
 class PartitionObserver(ExpressionObserver):
@@ -18,3 +31,25 @@ class PartitionObserver(ExpressionObserver):
         self.join_columns += get_expressions_by_recursive_path(
             join_expression, (Condition, Column)
         )
+
+    def get_column_expression_tables(self, column_expression: Column) -> list[Table]:
+        related_query = get_parent(column_expression, Select)
+
+        if not related_query:
+            return []
+
+        tables: list[Table] = [
+            *get_expressions_by_path(related_query, (From, Table)),
+            *get_expressions_by_path(related_query, (Join, Table)),
+            *get_expressions_by_path(related_query, (With, Table)),
+        ]
+
+        if column_expression.table != "":
+            for table in tables:
+                if (
+                    table.alias == column_expression.table
+                    or table.name == column_expression.table
+                ):
+                    return [table]
+
+        return tables

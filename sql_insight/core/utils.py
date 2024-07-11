@@ -1,5 +1,5 @@
 from sqlglot import Expression
-from typing import TypeVar, TypeAlias, Iterator
+from typing import TypeVar, TypeAlias
 from collections import deque
 
 E = TypeVar("E", bound=Expression)
@@ -54,3 +54,13 @@ def get_expressions_by_recursive_path(
                 queue.append(child_expression)
 
     return expressions
+
+
+def get_parent(expression: Expression, kind: type[E] = Expression) -> E | None:
+    parent = expression.parent
+
+    while parent != None and not isinstance(parent, kind):
+        parent = parent.parent
+
+    # when reached it should be of type E or None
+    return parent  # type: ignore
