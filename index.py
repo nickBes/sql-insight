@@ -26,8 +26,12 @@ expression = parse_one(
 
 walker = ExpressionWalker(expression, partition)
 walker.walk()
+print(repr(expression))
+[print(partition) for partition in partition.partition_candidates]
 
-[
-    print([y.name for y in partition.get_column_expression_tables(x)], x)
-    for x in partition.where_columns
-]
+"""
+    Question the observer strategy, as you can simply loop over the expressions you're looking for
+
+    Pro:
+        you can use multiple observers for single query, however not sure how necessary it is....
+"""

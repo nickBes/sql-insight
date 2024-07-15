@@ -1,55 +1,39 @@
+from dataclasses import dataclass
 from sql_insight.core.observer import ExpressionObserver
-from sql_insight.core.utils import (
-    get_expressions_by_recursive_path,
-    get_parent,
-    get_expressions_by_path,
-)
-from sqlglot.expressions import (
-    Where,
-    Column,
-    Condition,
-    Join,
-    Table,
-    Select,
-    From,
-    With,
-)
+from sql_insight.observers.utils import get_column_expression_tables
+from sql_insight.core.utils import get_expressions_by_recursive_path
+from sqlglot.expressions import Where, Column, Condition, Join, Table
+
+
+@dataclass
+class PartitionCandidate:
+    column: str
+    possible_tables: list[str]
 
 
 class PartitionObserver(ExpressionObserver):
-    where_columns: list[Column] = []
-    join_columns: list[Column] = []
+    partition_candidates: list[PartitionCandidate] = []
 
     @ExpressionObserver.register(Where)
     def get_where_columns(self, where_expression: Where):
-        self.where_columns += get_expressions_by_recursive_path(
+        for column in get_expressions_by_recursive_path(
             where_expression, (Condition, Column)
-        )
+        ):
+            self.partition_candidates.append(
+                PartitionCandidate(
+                    column.name,
+                    [table.name for table in get_column_expression_tables(column)],
+                )
+            )
 
     @ExpressionObserver.register(Join)
     def get_join_columns(self, join_expression: Join):
-        self.join_columns += get_expressions_by_recursive_path(
+        for column in get_expressions_by_recursive_path(
             join_expression, (Condition, Column)
-        )
-
-    def get_column_expression_tables(self, column_expression: Column) -> list[Table]:
-        related_query = get_parent(column_expression, Select)
-
-        if not related_query:
-            return []
-
-        tables: list[Table] = [
-            *get_expressions_by_path(related_query, (From, Table)),
-            *get_expressions_by_path(related_query, (Join, Table)),
-            *get_expressions_by_path(related_query, (With, Table)),
-        ]
-
-        if column_expression.table != "":
-            for table in tables:
-                if (
-                    table.alias == column_expression.table
-                    or table.name == column_expression.table
-                ):
-                    return [table]
-
-        return tables
+        ):
+            self.partition_candidates.append(
+                PartitionCandidate(
+                    column.name,
+                    [table.name for table in get_column_expression_tables(column)],
+                )
+            )
