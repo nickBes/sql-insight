@@ -1,13 +1,15 @@
-from sql_insight.core.observer import ExpressionWalker
+from sql_insight.core.observer import ExpressionWalker, ExpressionObserver
 from sql_insight.observers.PartitionObserver import PartitionObserver
+from sql_insight.observers.ObjectTrackingObserver import ObjectTrackingObserver
 from sqlglot import parse_one
 
 
 partition = PartitionObserver()
+object_tracker = ObjectTrackingObserver()
 expression = parse_one(
     """
             with abc as (
-                select * from alpha a, gamma g, (
+                select a.*, g.*, d.param as param, (select g from beta where id = 5) as g from alpha a, gamma g, (
                     select * from delta
                 ) d
                 inner join beta b
@@ -24,11 +26,9 @@ expression = parse_one(
     dialect="trino",
 )
 
-walker = ExpressionWalker(expression, partition)
+walker = ExpressionWalker(expression, object_tracker)
 walker.walk()
-print(repr(expression))
-[print(partition) for partition in partition.partition_candidates]
-
+print(object_tracker)
 """
     Question the observer strategy, as you can simply loop over the expressions you're looking for
 

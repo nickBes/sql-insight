@@ -55,10 +55,10 @@ class ExpressionWalker:
                 expression.__class__.__name__
             )
 
-            if on_enter_method_name:
+            if on_enter_method_name and hasattr(observer, on_enter_method_name):
                 on_enter_methods.append(observer.__getattribute__(on_enter_method_name))
 
-            if on_exit_method_name:
+            if on_exit_method_name and hasattr(observer, on_exit_method_name):
                 on_exit_methods.append(observer.__getattribute__(on_exit_method_name))
 
         for on_enter_method in on_enter_methods:

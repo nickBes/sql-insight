@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from sql_insight.core.observer import ExpressionObserver
 from sql_insight.observers.utils import get_column_expression_tables
-from sql_insight.core.utils import get_expressions_by_recursive_path, get_parent
-from sqlglot.expressions import Where, Column, Condition, Join, Select
-from sqlglot.lineage import lineage
+from sql_insight.core.utils import get_expressions_by_recursive_path
+from sqlglot.expressions import Where, Column, Condition, Join
 
 
 @dataclass
