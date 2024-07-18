@@ -12,7 +12,8 @@ from sqlglot.expressions import (
     Alias,
     Column,
 )
-from sql_insight.core.utils import get_expressions_by_path, get_first_expression_by_path
+from sql_insight.core.utils import get_expressions_by_path
+from collections import deque
 
 
 class ObjectTrackingObserver(ExpressionObserver):
@@ -109,3 +110,30 @@ class ObjectTrackingObserver(ExpressionObserver):
                             break
 
         self.object_map[derived_table_expression] = column_map
+
+    def get_all_column_deps(
+        self, column: str, related_tables: list[Expression]
+    ) -> list[str]:
+        deps: list[str] = []
+        queue = deque(related_tables)
+
+        while queue:
+            query_object = queue.popleft()
+
+            if isinstance(query_object, Table):
+                deps.append(query_object.name)
+            else:
+                query_object_columns = self.object_map.get(query_object)
+
+                if query_object_columns:
+                    dep_query_objects = query_object_columns.get(column)
+
+                    if dep_query_objects:
+                        queue += dep_query_objects
+                    else:
+                        select_all_query_objects = query_object_columns.get("*")
+
+                        if select_all_query_objects:
+                            queue += select_all_query_objects
+
+        return deps
